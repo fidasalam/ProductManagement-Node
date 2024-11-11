@@ -1,0 +1,6 @@
+::1 - - [05/Nov/2024:10:40:03 +0000] "GET /api/products HTTP/1.1" 200 952 "-" "PostmanRuntime/7.39.1"
+::1 - - [05/Nov/2024:10:41:18 +0000] "GET /api/products HTTP/1.1" 200 952 "-" "PostmanRuntime/7.39.1"
+::1 - - [05/Nov/2024:10:44:18 +0000] "GET /api/categories HTTP/1.1" 200 160 "-" "PostmanRuntime/7.39.1"
+::1 - - [05/Nov/2024:10:45:14 +0000] "GET /api/categories HTTP/1.1" 200 160 "-" "PostmanRuntime/7.39.1"
+::1 - - [05/Nov/2024:10:52:30 +0000] "GET /api/categories HTTP/1.1" 200 160 "-" "PostmanRuntime/7.39.1"
+::1 - - [05/Nov/2024:10:52:41 +0000] "GET /api/products HTTP/1.1" 200 952 "-" "PostmanRuntime/7.39.1"

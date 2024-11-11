@@ -1,0 +1,94 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  sku         String      @unique
+  name        String
+  description String?
+  price       Float
+  stock       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  categories  Category[]  @relation("ProductCategory")
+  inventories Inventory[] @relation("ProductInventory")
+  saleItems   SaleItem[]
+  Ledger      Ledger[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[] @relation("ProductCategory")
+}
+
+model Warehouse {
+  id        Int         @id @default(autoincrement())
+  name      String
+  location  String
+  inventory Inventory[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Inventory {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  warehouseId Int
+  quantity    Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  product     Product   @relation(fields: [productId], references: [id], name: "ProductInventory")
+}
+
+model Invoice {
+  id        Int        @id @default(autoincrement())
+  customer  String
+  total     Float
+  tax       Float      @default(0)
+  discount  Float      @default(0)
+  mobile    String?    
+  status    String     @default("Pending")
+  createdAt DateTime   @default(now())
+  items     SaleItem[] @relation("InvoiceItems")
+  Ledger    Ledger[]
+}
+
+model SaleItem {
+  id         Int       @id @default(autoincrement())
+  invoiceId  Int
+  productId  Int
+  quantity   Int
+  price      Float
+  totalPrice Float     @default(0)
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @default(now())
+  discount   Float     @default(0)
+  tax        Float     @default(0)
+  invoice    Invoice   @relation("InvoiceItems", fields: [invoiceId], references: [id])
+  product    Product   @relation(fields: [productId], references: [id])
+}
+
+model Ledger {
+  id              Int      @id @default(autoincrement())
+  transactionDate DateTime @default(now())
+  description     String
+  amount          Float
+  transactionType String
+  invoiceId       Int?
+  productId       Int?
+  invoice         Invoice? @relation(fields: [invoiceId], references: [id])
+  product         Product? @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

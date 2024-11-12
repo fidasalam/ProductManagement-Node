@@ -20,8 +20,21 @@ model Product {
   updatedAt   DateTime    @updatedAt
   categories  Category[]  @relation("ProductCategory")
   inventories Inventory[] @relation("ProductInventory")
-  saleItems   SaleItem[]
-  Ledger      Ledger[]
+  saleItems   SaleItem[]  
+  Ledger      Ledger[]    
+  attributes  Attribute[] 
+  
+  discounts   Discount[]  @relation("ProductDiscounts")
+  priceRules  PriceRule[] @relation("ProductPriceRules")
+  purchaseRules PurchaseRule[] @relation("ProductPurchaseRules")
+}
+
+model Attribute {
+  id          Int      @id @default(autoincrement())
+  name        String   // e.g., "Color", "Size", etc.
+  value       String   // e.g., "Red", "Large", etc.
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id])
 }
 
 model Category {
@@ -42,11 +55,11 @@ model Warehouse {
 model Inventory {
   id          Int       @id @default(autoincrement())
   productId   Int
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
   warehouseId Int
   quantity    Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
   product     Product   @relation(fields: [productId], references: [id], name: "ProductInventory")
 }
 
@@ -60,7 +73,7 @@ model Invoice {
   status    String     @default("Pending")
   createdAt DateTime   @default(now())
   items     SaleItem[] @relation("InvoiceItems")
-  Ledger    Ledger[]
+  Ledger    Ledger[]   
 }
 
 model SaleItem {
@@ -91,4 +104,42 @@ model Ledger {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Discount {
+  id          Int       @id @default(autoincrement())
+  name        String
+  amount      Float     
+  type        DiscountType
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[] @relation("ProductDiscounts")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model PriceRule {
+  id          Int       @id @default(autoincrement())
+  name        String
+  discount    Float     // Discount applied by this rule (fixed or percentage)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[] @relation("ProductPriceRules")
+}
+
+model PurchaseRule {
+  id          Int       @id @default(autoincrement())
+  name        String
+  quantity    Int       // Minimum quantity to apply this rule
+  discount    Float     // Discount applied when the quantity condition is met
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[] @relation("ProductPurchaseRules")
 }

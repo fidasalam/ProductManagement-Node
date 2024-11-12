@@ -5,6 +5,10 @@ class ProductService {
     return await prisma.product.findMany({
       include: {
         categories: true,
+        attributes:true,
+        discounts: true,
+        priceRules: true,
+        purchaseRules: true,
       },
       orderBy: { id: "asc" },
     });
@@ -13,6 +17,13 @@ class ProductService {
   async getProductById(id) {
     return await prisma.product.findUnique({
       where: { id: Number(id) },
+      include: {
+        categories: true,
+        attributes:true,
+        discounts: true,
+        priceRules: true,
+        purchaseRules: true,
+      },
     });
   }
 
@@ -31,6 +42,18 @@ class ProductService {
   // }
 
   async addProduct(productDetails) {
+    // Check if product with the same SKU already exists
+    const existingProduct = await prisma.product.findUnique({
+      where: {
+        sku: productDetails.sku,
+      },
+    });
+  
+    if (existingProduct) {
+      throw new Error("A product with this SKU already exists.");
+    }
+  
+    // Create the new product
     return await prisma.product.create({
       data: {
         name: productDetails.name,
@@ -41,14 +64,32 @@ class ProductService {
         categories: {
           connect: productDetails.categories.map((id) => ({ id })),
         },
-
-
+        attributes: {
+          create: productDetails.attributes.map((attribute) => ({
+            name: attribute.name,
+            value: attribute.value,
+          })),
+        },
+        discounts: {
+          connect : productDetails.discounts.map((id)=>({id}))
+        },
+        priceRules:{
+          connect: productDetails.priceRules.map((id)=>({id}))
+        },
+        purchaseRules: {
+          connect: productDetails.purchaseRules.map((id) => ({ id })),
+        },
       },
       include: {
         categories: true,
+        attributes: true,
+        discounts: true,
+        priceRules: true,
+        purchaseRules: true,
       },
     });
   }
+  
 
   async updateProduct(id, productDetails) {
     return await prisma.product.update({
